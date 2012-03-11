@@ -1,0 +1,59 @@
+#!/bin/bash
+
+#
+# Script to print all chains and tables in the
+# order they are processed by the kernel
+#
+
+function printhooks {
+
+echo "--->PRE-------->[ROUTE]----FWD------+---->POST--->
+    Conntrack      |       Mangle   ^     Mangle
+    Mangle         |       Filter   |     NAT (Src)
+    NAT (Dst)      |                |     Conntrack
+    (Qdisc)        |             [ROUTE]
+                   v                |
+                   IN Filter       OUT Conntrack
+                   |  Conntrack     ^  Mangle
+                   |  Mangle        |  NAT (Dst)
+                   v                |  Filter"
+}
+
+function printrule {
+        # $1 Chain
+        # $2..$n tables
+
+        chain=$1
+        shift
+        echo
+        echo
+        echo "----------------------------------------------------------------------"
+        echo "Chain $chain"
+        echo "----------------------------------------------------------------------"
+        for t in $@; do
+                case $tables in *$t*)
+                        echo
+                        echo "Table $t"
+                        echo "--------------"
+                        $iptables --line-numbers -L $chain -t $t -n -v 2>/dev/null
+                        ;;
+                esac
+        done
+
+}
+
+if [[ $0 == *6* ]]; then
+	tables=$(< /proc/net/ip6_tables_names)
+	iptables=ip6tables
+else
+	tables=$(< /proc/net/ip_tables_names)
+	iptables=iptables
+fi	
+
+printhooks
+
+printrule PREROUTING mangle nat
+printrule FORWARD mangle filter
+printrule POSTROUTING mangle nat
+printrule INPUT filter mangle
+printrule OUTPUT mangle nat filter

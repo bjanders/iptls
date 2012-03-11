@@ -1,0 +1,21 @@
+List all iptables rules
+
+The script prints all chains and tables in the
+order they are processed by the kernel.
+
+If the name of the script contains '6' in it, it will list 
+ip6tables rules so that you can do, for example:
+
+# ln -s iptls ip6tls
+
+
+Copyright (C) Bjorn Andersson <bjorn@iki.fi>
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License version 2.1 as published by the Free Software Foundation.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
