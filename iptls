@@ -8,15 +8,16 @@
 function printhooks {
 
 echo "--->PRE-------->[ROUTE]----FWD------+---->POST--->
-    Conntrack      |       Mangle   ^     Mangle
-    Mangle         |       Filter   |     NAT (Src)
-    NAT (Dst)      |                |     Conntrack
-    (Qdisc)        |             [ROUTE]
+    raw            |       mangle   ^     mangle
+    Conntrack      |       filter   |     nat (Src)
+    mangle         |                |     Conntrack
+    nat (Dst)      |             [ROUTE]
                    v                |
-                   IN Filter       OUT Conntrack
-                   |  Conntrack     ^  Mangle
-                   |  Mangle        |  NAT (Dst)
-                   v                |  Filter"
+                   IN mangle       OUT raw 
+                   |  filter        |  Conntrack 
+                   |                |  mangle
+                   |                |  nat (Dst)
+                   v                |  filter"
 }
 
 function printrule {
@@ -52,8 +53,8 @@ fi
 
 printhooks
 
-printrule PREROUTING mangle nat
+printrule PREROUTING raw mangle nat
 printrule FORWARD mangle filter
 printrule POSTROUTING mangle nat
-printrule INPUT filter mangle
-printrule OUTPUT mangle nat filter
+printrule INPUT mangle filter
+printrule OUTPUT raw mangle nat filter
